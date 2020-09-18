@@ -1,10 +1,9 @@
 import React from "react"
 import { getBoxToBoxArrow } from "perfect-arrows"
 
-export default function BoxToBox() {
+export default function BoxToSelf() {
   const ref = React.useRef<HTMLElement>(null)
-  const [b1, setB1] = React.useState({ x: 100, y: 200, w: 128, h: 200 })
-  const [b2, setB2] = React.useState({ x: 300, y: 301, w: 128, h: 128 })
+  const [box, setBox] = React.useState({ x: 100, y: 200, w: 128, h: 200 })
 
   const [bow, setBow] = React.useState(0)
   const [stretch, setStretch] = React.useState(0.5)
@@ -17,14 +16,14 @@ export default function BoxToBox() {
   const [showDecorations, setShowDecorations] = React.useState(true)
 
   const [sx, sy, cx, cy, ex, ey, ae, as, ac] = getBoxToBoxArrow(
-    b1.x,
-    b1.y,
-    b1.w,
-    b1.h,
-    b2.x,
-    b2.y,
-    b2.w,
-    b2.h,
+    box.x,
+    box.y,
+    box.w,
+    box.h,
+    box.x,
+    box.y,
+    box.w,
+    box.h,
     {
       padStart,
       padEnd,
@@ -39,29 +38,28 @@ export default function BoxToBox() {
 
   const endAngleAsDegrees = ae * (180 / Math.PI)
 
+  const resizeBox = (pageX: number, pageY: number) => {
+    setBox(b => ({
+      ...b,
+      w: (pageX - b.w / 2 - (ref.current?.offsetLeft || 0)),
+      h: (pageY - b.h / 2 - (ref.current?.offsetTop || 0)),
+    }))
+  }
+
   return (
     <section ref={ref}>
-      <h2>Box to Box</h2>
+      <h2>Box to Self</h2>
       <svg
         viewBox="0 0 1280 720"
         style={{ width: 1280, height: 720, border: "1px solid #000" }}
         onClick={e => {
-          const { pageX, pageY } = e
-          setB2(b => ({
-            ...b,
-            x: pageX - b.w / 2 - (ref.current?.offsetLeft || 0),
-            y: pageY - b.h / 2 - (ref.current?.offsetTop || 0),
-          }))
+          resizeBox(e.pageX, e.pageY)
         }}
         onMouseMove={e => {
           if (e.buttons !== 1) return
-          const { pageX, pageY } = e
-          setB2(b => ({
-            ...b,
-            x: pageX - b.w / 2 - (ref.current?.offsetLeft || 0),
-            y: pageY - b.h / 2 - (ref.current?.offsetTop || 0),
-          }))
+          resizeBox(e.pageX, e.pageY)
         }}
+
         stroke="#000"
         fill="#000"
         strokeWidth={3}
@@ -83,33 +81,17 @@ export default function BoxToBox() {
           fill="none"
         />
         <rect
-          name="b1"
-          x={b1.x}
-          y={b1.y}
-          width={b1.w}
-          height={b1.h}
-          fill="none"
-        />
-        <rect
-          name="b1"
-          x={b2.x}
-          y={b2.y}
-          width={b2.w}
-          height={b2.h}
+          name="box"
+          x={box.x}
+          y={box.y}
+          width={box.w}
+          height={box.h}
           fill="none"
         />
         <circle
           name="start-point"
-          cx={b1.x + b1.w / 2}
-          cy={b1.y + b1.h / 2}
-          r={3}
-          fill={"#F00"}
-          strokeWidth={0}
-        />
-        <circle
-          name="end-point"
-          cx={b2.x + b2.w / 2}
-          cy={b2.y + b2.h / 2}
+          cx={box.x + box.w / 2}
+          cy={box.y + box.h / 2}
           r={3}
           fill={"#F00"}
           strokeWidth={0}
